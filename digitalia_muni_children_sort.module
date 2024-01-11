@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for digitalia_muni_children_sort module.
+ *
+ * @DCG
+ * This file is no longer required in Drupal 8.
+ * @see https://www.drupal.org/node/2217931
+ */
+function digitalia_muni_children_sort_form_views_exposed_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+
+  if ($form_id == 'views_exposed_form' and $form_state->get('view')->id() == 'manage_members') {
+    $node_id = explode('/',$form['#action'])[3];
+    $node = \Drupal\node\Entity\Node::load($node_id);
+    $type = $node->getType();
+
+    if ($type == 'serial') {
+      $form['sort_bef_combine']['#default_value'] = 'field_years_first_ASC';
+      $form['sort_bef_combine']['#options'] = ['field_years_first_ASC' => 'Oldest first', 'field_years_first_DESC' => 'Newest first'];
+    } elseif ($type == 'book_series') {
+      $form['sort_bef_combine']['#default_value'] = 'field_publication_year_value_ASC';
+      $form['sort_bef_combine']['#options'] = ['field_publication_year_value_ASC' => 'Oldest first', 'field_publication_year_value_DESC' => 'Newest first'];
+    } elseif ($type == 'book' or $type == 'issue') {
+      $form['sort_bef_combine']['#default_value'] = 'field_pagination_from_value_ASC';
+      $form['sort_bef_combine']['#options'] = ['field_pagination_from_value_ASC' => 'Pagination (asc)', 'field_pagination_from_value_DESC' => 'Pagination (desc)'];
+    } elseif ($type == 'volume') {
+      $form['sort_bef_combine']['#default_value'] = 'title_ASC';
+      $form['sort_bef_combine']['#options'] = ['title_ASC' => 'Issue name (asc)', 'title_DESC' => 'Issue name (desc)'];
+    } else {
+      $form['sort_bef_combine']['#default_value'] = '';
+      $form['sort_bef_combine']['#options'] = [];
+      $form['sort_bef_combine']['#title'] = '';
+    }
+  }
+}
